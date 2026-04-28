@@ -1,0 +1,474 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="SEO Intel — Professional AI-powered SEO audits, real keyword rank tracking via DataForSEO, traffic forecasts, and weekly email reports.">
+<title>SEO Intel — Professional SEO Intelligence Platform</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="css/main.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+</head>
+<body>
+
+<!-- ══════════════════════════════════════════════
+     NAVIGATION
+══════════════════════════════════════════════ -->
+<nav class="nav" id="main-nav">
+  <div class="nav-inner">
+    <a class="nav-logo" onclick="showPage('home')" style="cursor:pointer">
+      SEO<span class="nav-logo-accent">Intel</span><span class="nav-logo-dot"></span>
+    </a>
+    <div class="nav-links">
+      <button class="nav-link" onclick="showPage('home')">Analyzer</button>
+      <button class="nav-link" onclick="showPage('pricing')">Pricing</button>
+      <button class="nav-link dim" onclick="changeKey()">Change Key</button>
+    </div>
+    <div class="nav-actions">
+      <button class="btn btn-sm btn-ghost" onclick="showPage('pricing')">View Plans</button>
+      <button class="btn btn-sm btn-gold" onclick="openEmailModal()">Weekly Reports</button>
+    </div>
+  </div>
+</nav>
+
+
+<!-- ══════════════════════════════════════════════
+     PAGE: SETUP
+══════════════════════════════════════════════ -->
+<div class="page active" id="page-setup">
+  <div class="setup-page">
+    <div class="setup-bg-line"></div>
+    <div class="setup-box">
+
+      <div class="setup-brand">
+        <div class="setup-brand-name">SEO<em>Intel</em></div>
+        <div class="setup-brand-tagline">
+          AI-powered SEO audits. Real keyword rank tracking.<br>
+          Weekly reports. Professional PDF exports.
+        </div>
+      </div>
+
+      <div class="setup-card">
+        <div class="setup-card-title">Connect your API keys</div>
+        <div class="setup-card-sub">
+          SEO Intel runs entirely in your browser. Your keys are saved locally
+          and never transmitted to any third-party server.
+        </div>
+
+        <!-- Anthropic -->
+        <div style="margin-bottom:28px">
+          <div class="field-label" style="margin-bottom:12px;font-size:12px;letter-spacing:0.08em">Anthropic — Required for AI audits</div>
+          <div class="setup-steps" style="margin-bottom:16px">
+            <div class="setup-step">
+              <div class="setup-step-num">1</div>
+              <div class="setup-step-text">
+                Visit <a href="https://console.anthropic.com/settings/keys" target="_blank">console.anthropic.com/settings/keys</a> and sign in
+              </div>
+            </div>
+            <div class="setup-step">
+              <div class="setup-step-num">2</div>
+              <div class="setup-step-text">
+                Click <strong style="color:var(--silver)">Create Key</strong> and copy it (starts with <code>sk-ant-</code>)
+              </div>
+            </div>
+            <div class="setup-step">
+              <div class="setup-step-num">3</div>
+              <div class="setup-step-text">
+                Add at least $5 credits at
+                <a href="https://console.anthropic.com/settings/billing" target="_blank">console.anthropic.com/settings/billing</a>
+              </div>
+            </div>
+          </div>
+          <div class="setup-input-row">
+            <input type="password" id="key-anthropic" placeholder="sk-ant-api03-..." autocomplete="off" spellcheck="false" />
+          </div>
+        </div>
+
+        <!-- DataForSEO (optional) -->
+        <div style="margin-bottom:24px">
+          <div class="field-label" style="margin-bottom:4px;font-size:12px;letter-spacing:0.08em">
+            DataForSEO — Optional, for real keyword ranks
+          </div>
+          <div style="font-size:12px;color:var(--fog2);margin-bottom:12px;line-height:1.6">
+            Sign up at <a href="https://dataforseo.com" target="_blank" style="color:var(--gold);text-decoration:none">dataforseo.com</a>.
+            Free trial available. ~$0.001–0.05 per keyword check. Leave blank to use AI estimates.
+          </div>
+          <div class="field-row" style="gap:10px;margin-bottom:0">
+            <div>
+              <div class="field-label" style="font-size:10px">Login Email</div>
+              <div class="setup-input-row" style="margin-bottom:0">
+                <input type="email" id="key-dfs-user" placeholder="you@email.com" autocomplete="off" />
+              </div>
+            </div>
+            <div>
+              <div class="field-label" style="font-size:10px">API Password</div>
+              <div class="setup-input-row" style="margin-bottom:0">
+                <input type="password" id="key-dfs-pass" placeholder="Your DataForSEO password" autocomplete="off" />
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div id="alert-error" class="alert alert-error"></div>
+        <div id="alert-warn"  class="alert alert-warn"></div>
+        <div id="alert-info"  class="alert alert-info"></div>
+
+        <button id="connect-btn" class="btn btn-lg btn-gold" style="width:100%" onclick="connectKey()">
+          Connect and Continue
+        </button>
+
+        <div class="setup-footnote" style="margin-top:14px">
+          Keys stored in browser localStorage only. Never shared.
+          <a href="https://www.anthropic.com/pricing" target="_blank">Anthropic pricing</a> &mdash;
+          <a href="https://dataforseo.com/pricing" target="_blank">DataForSEO pricing</a>.
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+
+<!-- ══════════════════════════════════════════════
+     PAGE: HOME / ANALYZER
+══════════════════════════════════════════════ -->
+<div class="page" id="page-home" style="padding-top:68px">
+  <div class="container">
+
+    <div class="home-hero">
+      <div class="hero-eyebrow">AI-Powered SEO Intelligence</div>
+      <h1 class="hero-h1">
+        Uncover exactly what is
+        <span class="line2"><em>limiting</em> your search rankings</span>
+      </h1>
+      <p class="hero-lead">
+        Full technical audit. Real keyword positions. Traffic projections
+        after improvements. Weekly reports straight to your inbox.
+      </p>
+
+      <div class="hero-input-group">
+        <div class="hero-url-bar">
+          <input type="text" id="url-input" placeholder="https://yourwebsite.com" autocomplete="off" />
+          <button id="analyze-btn" class="btn btn-gold" style="border-radius:0" onclick="analyze()">
+            Run Audit
+          </button>
+        </div>
+        <div class="hero-note">
+          Free audit included.
+          <a onclick="showPage('pricing')">Upgrade for weekly tracking and PDF reports.</a>
+        </div>
+      </div>
+    </div>
+
+    <div id="error-msg"></div>
+
+    <div id="loading-wrap">
+      <div style="display:flex;flex-direction:column;align-items:center">
+        <div class="spinner"></div>
+        <div class="loading-title">Analyzing your website</div>
+        <div class="loading-sub">This typically takes 15–25 seconds</div>
+        <div class="step-list" id="step-list"></div>
+      </div>
+    </div>
+
+    <div class="trust-row">
+      <div class="trust-item"><span class="trust-check">&#10003;</span> Full technical SEO audit</div>
+      <div class="trust-item"><span class="trust-check">&#10003;</span> Real keyword rank tracking</div>
+      <div class="trust-item"><span class="trust-check">&#10003;</span> Traffic forecast</div>
+      <div class="trust-item"><span class="trust-check">&#10003;</span> Weekly email reports</div>
+      <div class="trust-item"><span class="trust-check">&#10003;</span> Downloadable PDF</div>
+      <div class="trust-item"><span class="trust-check">&#10003;</span> DataForSEO integration</div>
+    </div>
+
+  </div>
+</div>
+
+
+<!-- ══════════════════════════════════════════════
+     PAGE: REPORT
+══════════════════════════════════════════════ -->
+<div class="page" id="page-report" style="padding-top:68px">
+  <div class="container">
+
+    <div class="report-bar">
+      <div class="report-bar-left">
+        <h2>SEO Audit Report</h2>
+        <div class="report-bar-url" id="report-url-tag"></div>
+      </div>
+      <div class="report-bar-actions">
+        <button class="btn btn-md btn-outline-fog" onclick="showPage('home')">New Audit</button>
+        <button class="btn btn-md btn-ghost" onclick="openEmailModal()">Weekly Reports</button>
+        <button class="btn btn-md btn-gold" id="pdf-btn" onclick="downloadPDF()">Download PDF</button>
+      </div>
+    </div>
+
+    <div id="report-body"></div>
+
+  </div>
+</div>
+
+
+<!-- ══════════════════════════════════════════════
+     PAGE: PRICING
+══════════════════════════════════════════════ -->
+<div class="page" id="page-pricing" style="padding-top:68px">
+  <div class="container">
+
+    <div class="pricing-hero">
+      <h1>Transparent, <em>scalable</em> pricing</h1>
+      <p>
+        Start for free. Upgrade when you need live keyword tracking,
+        PDF reports, and multi-site management.
+      </p>
+
+      <div class="billing-toggle">
+        <span>Monthly</span>
+        <div class="toggle-track" id="billing-toggle" onclick="toggleBilling()">
+          <div class="toggle-thumb"></div>
+        </div>
+        <span>Annual</span>
+        <span class="tag tag-gold">Save 30%</span>
+      </div>
+    </div>
+
+    <div class="pricing-grid" style="margin-bottom:80px">
+
+      <!-- FREE -->
+      <div class="pricing-box">
+        <div class="pricing-name">Free</div>
+        <div class="pricing-desc">For individuals starting out</div>
+        <div class="pricing-amount-row">
+          <span class="pricing-currency">$</span>
+          <span class="pricing-amount">0</span>
+        </div>
+        <div class="pricing-period">forever</div>
+        <hr class="pricing-divider">
+        <ul class="pricing-features">
+          <li><span class="pf-yes">+</span><span class="pf-text">5 audits per month</span></li>
+          <li><span class="pf-yes">+</span><span class="pf-text">Full technical SEO audit</span></li>
+          <li><span class="pf-yes">+</span><span class="pf-text">Critical issues and fixes</span></li>
+          <li><span class="pf-yes">+</span><span class="pf-text">Improvement roadmap</span></li>
+          <li><span class="pf-no">-</span><span class="pf-text dim">PDF report download</span></li>
+          <li><span class="pf-no">-</span><span class="pf-text dim">Traffic forecast</span></li>
+          <li><span class="pf-no">-</span><span class="pf-text dim">Keyword rank tracking</span></li>
+          <li><span class="pf-no">-</span><span class="pf-text dim">Weekly email reports</span></li>
+          <li><span class="pf-no">-</span><span class="pf-text dim">Multiple websites</span></li>
+        </ul>
+        <button class="btn btn-lg btn-ghost pricing-btn" onclick="showPage('home')">Start Free</button>
+      </div>
+
+      <!-- PRO -->
+      <div class="pricing-box featured">
+        <div class="pricing-chip">Most Popular</div>
+        <div class="pricing-name">Pro</div>
+        <div class="pricing-desc">For freelancers and growing businesses</div>
+        <div class="pricing-amount-row">
+          <span class="pricing-currency">$</span>
+          <span class="pricing-amount pro-price">29</span>
+        </div>
+        <div class="pricing-period">per month</div>
+        <div class="pricing-note pro-note">Billed $243 per year — save $105</div>
+        <hr class="pricing-divider">
+        <ul class="pricing-features">
+          <li><span class="pf-yes">+</span><span class="pf-text"><span class="pf-hl">Unlimited</span> audits</span></li>
+          <li><span class="pf-yes">+</span><span class="pf-text">Full technical SEO audit</span></li>
+          <li><span class="pf-yes">+</span><span class="pf-text">Critical issues and fixes</span></li>
+          <li><span class="pf-yes">+</span><span class="pf-text">Improvement roadmap</span></li>
+          <li><span class="pf-yes">+</span><span class="pf-text"><span class="pf-hl">PDF report download</span></span></li>
+          <li><span class="pf-yes">+</span><span class="pf-text"><span class="pf-hl">Traffic forecast</span></span></li>
+          <li><span class="pf-yes">+</span><span class="pf-text"><span class="pf-hl">DataForSEO rank tracking</span></span></li>
+          <li><span class="pf-yes">+</span><span class="pf-text"><span class="pf-hl">Weekly email reports</span></span></li>
+          <li><span class="pf-yes">+</span><span class="pf-text">Up to <span class="pf-hl">3 websites</span></span></li>
+        </ul>
+        <button class="btn btn-lg btn-gold pricing-btn" onclick="openEmailModal()">Start Free Trial</button>
+      </div>
+
+      <!-- AGENCY -->
+      <div class="pricing-box">
+        <div class="pricing-name">Agency</div>
+        <div class="pricing-desc">For agencies managing multiple clients</div>
+        <div class="pricing-amount-row">
+          <span class="pricing-currency">$</span>
+          <span class="pricing-amount agency-price">89</span>
+        </div>
+        <div class="pricing-period">per month</div>
+        <div class="pricing-note agency-note">Billed $749 per year — save $319</div>
+        <hr class="pricing-divider">
+        <ul class="pricing-features">
+          <li><span class="pf-yes">+</span><span class="pf-text"><span class="pf-hl">Unlimited</span> audits</span></li>
+          <li><span class="pf-yes">+</span><span class="pf-text">Full technical SEO audit</span></li>
+          <li><span class="pf-yes">+</span><span class="pf-text">Critical issues and fixes</span></li>
+          <li><span class="pf-yes">+</span><span class="pf-text">Improvement roadmap</span></li>
+          <li><span class="pf-yes">+</span><span class="pf-text">PDF report download</span></li>
+          <li><span class="pf-yes">+</span><span class="pf-text">Traffic forecast</span></li>
+          <li><span class="pf-yes">+</span><span class="pf-text">DataForSEO rank tracking</span></li>
+          <li><span class="pf-yes">+</span><span class="pf-text">Weekly email reports</span></li>
+          <li><span class="pf-yes">+</span><span class="pf-text"><span class="pf-hl">Up to 25 websites</span></span></li>
+          <li><span class="pf-yes">+</span><span class="pf-text"><span class="pf-hl">White-label PDF reports</span></span></li>
+          <li><span class="pf-yes">+</span><span class="pf-text"><span class="pf-hl">Client report portal</span></span></li>
+          <li><span class="pf-yes">+</span><span class="pf-text"><span class="pf-hl">Priority support</span></span></li>
+        </ul>
+        <button class="btn btn-lg btn-ghost pricing-btn" onclick="openEmailModal()">Contact Sales</button>
+      </div>
+
+    </div><!-- /pricing-grid -->
+
+    <!-- FAQ -->
+    <div class="container-sm" style="padding-bottom:80px">
+      <h2 style="font-family:var(--ff-display);font-size:30px;color:var(--paper);text-align:center;margin-bottom:40px;letter-spacing:-0.3px">
+        Frequently Asked Questions
+      </h2>
+      <div class="faq-list">
+
+        <div class="faq-item">
+          <button class="faq-q" onclick="toggleFaq(this)">
+            How accurate is the traffic forecast?
+            <span class="faq-icon">+</span>
+          </button>
+          <div class="faq-a">
+            Traffic projections are conservative estimates based on your current SEO score,
+            keyword difficulty, and industry averages. They show what is realistically achievable
+            if the recommended fixes are implemented correctly. Results depend on execution quality
+            and market conditions and are not guarantees.
+          </div>
+        </div>
+
+        <div class="faq-item">
+          <button class="faq-q" onclick="toggleFaq(this)">
+            How does DataForSEO keyword tracking work?
+            <span class="faq-icon">+</span>
+          </button>
+          <div class="faq-a">
+            When you connect your DataForSEO credentials, SEO Intel queries the live Google SERP
+            for each target keyword and checks where your domain appears. You get the exact rank
+            position in real time. This replaces the AI estimate with factual data from Google.
+            DataForSEO charges per query — typically $0.001 to $0.05 depending on the task type.
+          </div>
+        </div>
+
+        <div class="faq-item">
+          <button class="faq-q" onclick="toggleFaq(this)">
+            What is included in the weekly email report?
+            <span class="faq-icon">+</span>
+          </button>
+          <div class="faq-a">
+            Weekly reports include your current SEO score, keyword position changes from the
+            previous week showing gains and drops, estimated traffic change, any new issues
+            detected, and the top three recommended actions for that week.
+            A full branded PDF is attached to every email.
+          </div>
+        </div>
+
+        <div class="faq-item">
+          <button class="faq-q" onclick="toggleFaq(this)">
+            Can I manage up to 25 websites for clients?
+            <span class="faq-icon">+</span>
+          </button>
+          <div class="faq-a">
+            Yes. The Agency plan supports up to 25 websites with separate audit dashboards,
+            keyword tracking, and weekly reports for each. White-label PDF reports let you send
+            branded reports directly to your clients under your own agency name.
+          </div>
+        </div>
+
+        <div class="faq-item">
+          <button class="faq-q" onclick="toggleFaq(this)">
+            Where are my API keys stored?
+            <span class="faq-icon">+</span>
+          </button>
+          <div class="faq-a">
+            Your Anthropic and DataForSEO credentials are stored exclusively in your browser's
+            localStorage. They are never transmitted to any SEO Intel server. All API calls go
+            directly from your browser to Anthropic and DataForSEO respectively.
+          </div>
+        </div>
+
+        <div class="faq-item">
+          <button class="faq-q" onclick="toggleFaq(this)">
+            What does each audit actually cost?
+            <span class="faq-icon">+</span>
+          </button>
+          <div class="faq-a">
+            Each full audit costs approximately $0.02 to $0.04 in Anthropic API credits using
+            Claude Sonnet. Adding DataForSEO keyword tracking for 6 keywords adds roughly
+            $0.006 to $0.30 depending on the SERP task type. A $5 Anthropic top-up covers
+            well over 100 complete audits.
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+  </div><!-- /container -->
+</div><!-- /page-pricing -->
+
+
+<!-- ══════════════════════════════════════════════
+     MODAL: WEEKLY EMAIL REPORTS
+══════════════════════════════════════════════ -->
+<div class="overlay" id="email-modal">
+  <div class="modal-box">
+
+    <div id="modal-form">
+      <div class="modal-title">Set Up Weekly Reports</div>
+      <div class="modal-sub">
+        Receive your SEO score, keyword position changes, traffic estimates,
+        and top actions every week. A full PDF is attached to every report.
+      </div>
+
+      <div class="field">
+        <label class="field-label">Full Name</label>
+        <input type="text" class="field-input" id="modal-name" placeholder="Jane Smith" />
+      </div>
+      <div class="field">
+        <label class="field-label">Email Address</label>
+        <input type="email" class="field-input" id="modal-email" placeholder="jane@company.com" />
+      </div>
+      <div class="field-row">
+        <div class="field">
+          <label class="field-label">Website</label>
+          <input type="text" class="field-input" id="modal-site" placeholder="https://yoursite.com" />
+        </div>
+        <div class="field">
+          <label class="field-label">Report Day</label>
+          <select class="field-input" id="modal-day">
+            <option>Monday</option><option>Tuesday</option>
+            <option selected>Wednesday</option>
+            <option>Thursday</option><option>Friday</option>
+          </select>
+        </div>
+      </div>
+      <div class="field">
+        <label class="field-label">Additional Sites (Agency plan)</label>
+        <input type="text" class="field-input" id="modal-extra" placeholder="site2.com, site3.com — optional" />
+      </div>
+
+      <div class="modal-actions">
+        <button class="btn btn-md btn-outline-fog" onclick="closeEmailModal()">Cancel</button>
+        <button class="btn btn-md btn-gold" onclick="submitEmail()">Activate Reports</button>
+      </div>
+    </div>
+
+    <div class="modal-success" id="modal-success">
+      <div class="success-icon">&#10003;</div>
+      <h4>Weekly reports activated</h4>
+      <p>
+        Your first full report will arrive this
+        <strong id="success-day" style="color:var(--paper)">Wednesday</strong>.
+        Check your inbox for a confirmation.
+      </p>
+      <div style="margin-top:24px">
+        <button class="btn btn-md btn-gold" style="width:100%;justify-content:center" onclick="closeEmailModal()">
+          Done
+        </button>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+
+<script src="js/core.js"></script>
+<script src="js/analyze.js"></script>
+</body>
+</html>
